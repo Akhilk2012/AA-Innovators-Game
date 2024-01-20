@@ -5,9 +5,11 @@ pygame.init()
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 640
 
-# Game Variables
+#Game variables
 
-icon = pygame.image.load('Game Assets/Germs/icon.png')
+icon = pygame.image.load('AA-Innovators-Game/Game Assets/Germs/icon.png')
+
+run = True
 
 # Screen
 
@@ -17,3 +19,8 @@ pygame.display.set_icon(icon)
 
 # Game Loop
 
+while run:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+pygame.quit()
