@@ -12,10 +12,10 @@ FPS = 60
 
 SCREEN_WIDTH = 750
 SCREEN_HEIGHT = 600
-LOWER_MARGIN = 100
+BELOW_MARGIN = 100
 SIDE_MARGIN = 300
 
-screen = pygame.display.set_mode((SCREEN_WIDTH + SIDE_MARGIN, SCREEN_HEIGHT + LOWER_MARGIN))
+screen = pygame.display.set_mode((SCREEN_WIDTH + SIDE_MARGIN, SCREEN_HEIGHT + BELOW_MARGIN))
 pygame.display.set_caption('Level Editor for our Game')
 
 # Game Variables
@@ -27,8 +27,9 @@ scroll_speed = 1
 ROWS = 16
 MAX_COLS = 150
 TILE_SIZE = SCREEN_HEIGHT // ROWS
-TILE_TYPES = 14
+TILE_TYPES = 16
 current_tile = 0
+level = 0
 
 # Images
 
@@ -39,12 +40,23 @@ for x in range(TILE_TYPES):
     img = pygame.image.load(f"AA-Innovators-Game/Game Assets/Tiles/{x}.png").convert_alpha()
     img = pygame.transform.scale(img, (TILE_SIZE,TILE_SIZE))
     img_list.append(img)
-
+save_img = pygame.image.load('AA-Innovators-Game/Game Assets/Menu/Buttons/save_btn.png').convert_alpha()
 
 # Define colors 
 GREEN = (144,201,120)
 WHITE = (255,255,255)
 RED = (200,25,25)
+
+
+# Created empty tile list
+world_data = []
+for row in range(ROWS):
+    r = [-1] * MAX_COLS
+    world_data.append(r)
+
+# Creating Ground
+for tile in range(0, MAX_COLS):
+    world_data[ROWS -1][tile] = 0
 
 
 # Function for drawing BG
@@ -65,7 +77,17 @@ def draw_grid():
         pygame.draw.line(screen, WHITE, (0,c * TILE_SIZE), (SCREEN_WIDTH,c * TILE_SIZE))
 
 
+# Functions for drawing tiles
+def draw_world():
+    for y, row in enumerate(world_data):
+        for x, tile in enumerate(row):
+            if tile >= 0:
+                screen.blit(img_list[tile], (x * TILE_SIZE - scroll, y * TILE_SIZE))
+
+
 # Creating buttons and list for storing buttons
+save_button = button.Button(SCREEN_WIDTH // 2, SCREEN_HEIGHT + BELOW_MARGIN - 50, save_img, 1)
+
 button_list = []
 button_col = 0
 button_row = 0
@@ -86,7 +108,13 @@ while run:
     
     draw_bg()
     draw_grid()
+    draw_world()
 
+    if save_button.draw(screen):
+        with open(f'level{level}_data.csv', 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter=',')
+            for row in world_data:
+                writer.writerow(row)
 
     # Drawing panel for buttons
     pygame.draw.rect(screen, GREEN, (SCREEN_WIDTH, 0, SIDE_MARGIN, SCREEN_HEIGHT))
@@ -104,13 +132,26 @@ while run:
     # Scrolling of Map
     if scroll_left == True and scroll > 0:
         scroll -= 5 * scroll_speed
-    if scroll_right == True:
+    if scroll_right == True and scroll < (MAX_COLS * TILE_SIZE):
         scroll += 5 * scroll_speed
 
+    # Adding new tiles and getting the mouse position
+    pos = pygame.mouse.get_pos()
+    x = (pos[0] + scroll) // TILE_SIZE
+    y = pos[1] // TILE_SIZE
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+
+    # Check if the audit are within the tile area.
+    if pos[0] < SCREEN_WIDTH and pos[1] < SCREEN_HEIGHT:
+        # Updating the tile value
+        if pygame.mouse.get_pressed()[0] == 1:
+            if world_data[y][x] != current_tile:
+                world_data[y][x] = current_tile
+        if pygame.mouse.get_pressed()[2] == 1:
+            world_data[y][x] = -1
 
     # Keyboard Controls
     if event.type == pygame.KEYDOWN:
