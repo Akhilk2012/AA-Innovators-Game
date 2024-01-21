@@ -7,6 +7,7 @@ SCREEN_HEIGHT = 640
 moving_left = False
 moving_right = False
 idle = True 
+spc = 0
 # Game Variables
 
 icon = pygame.image.load('AA-Innovators-Game/Game Assets/Germs/icon.png')
@@ -21,16 +22,7 @@ pygame.display.set_icon(icon)
 
 clock = pygame.time.Clock()
 FPS = 60
-class Germ(pygame.sprite.Sprite):
-    def __init__(self, x, y, scale, speed):
-        pygame.sprite.Sprite.__init__(self)
-        grm = pygame.image.load(f'AA-Innovators-Game/Game Assets/Germs/Red_Germ.png')
-        self.speed = speed 
-        self.germ = pygame.transform.scale(grm, (int(grm.get_width() * scale), (int(grm.get_height() * scale))))
-        self.rect = self.germ.get_rect()
-        self.rect.center = (x, y)
-    def draw(self):
-        screen.blit(self.germ,  self.rect)
+#
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, scale, speed):
         pygame.sprite.Sprite.__init__(self)
@@ -94,8 +86,7 @@ class Player(pygame.sprite.Sprite):
 
 
 player = Player(200, 200, 0.2, 5)
-Germ = Germ(400,200,0.1, 2.5)
-  
+    
 
 
 # Colors
@@ -112,10 +103,10 @@ def draw_bg():
 while run:
     
     draw_bg()
+    draw_floor(spc)
     clock.tick(FPS)
     player.update_animation()
     player.draw()
-    Germ.draw()
 
 
     # Player Actions
